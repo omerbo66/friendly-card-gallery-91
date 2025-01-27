@@ -31,6 +31,7 @@ export const Dashboard = () => {
     const loadClients = async () => {
       try {
         const supabaseClients = await fetchClientsFromSupabase();
+        console.log('Fetched clients:', supabaseClients);
         setClients(supabaseClients);
       } catch (error) {
         console.error("Error loading clients:", error);
@@ -46,7 +47,9 @@ export const Dashboard = () => {
   }, [toast]);
 
   const calculateMetrics = (client: Client): ClientMetrics => {
-    if (!client.monthlyData || client.monthlyData.length === 0) {
+    // Add null check for monthlyData
+    if (!client.monthlyData || !Array.isArray(client.monthlyData) || client.monthlyData.length === 0) {
+      console.log('No monthly data for client:', client.name);
       return {
         totalInvestment: 0,
         portfolioValue: 0,
@@ -58,13 +61,29 @@ export const Dashboard = () => {
     }
 
     const lastMonth = client.monthlyData[client.monthlyData.length - 1];
+    
+    // Verify lastMonth exists and has required properties
+    if (!lastMonth || typeof lastMonth.portfolioValue === 'undefined') {
+      console.log('Invalid last month data for client:', client.name);
+      return {
+        totalInvestment: 0,
+        portfolioValue: 0,
+        totalProfit: 0,
+        latestMonthlyInvestment: 0,
+        managementFee: 0,
+        currentValue: 0
+      };
+    }
+
+    const totalInvestment = client.monthlyData.reduce((sum, data) => sum + (data.investment || 0), 0);
+
     return {
-      totalInvestment: client.monthlyData.reduce((sum, data) => sum + data.investment, 0),
+      totalInvestment,
       portfolioValue: lastMonth.portfolioValue,
       totalProfit: lastMonth.profit,
       latestMonthlyInvestment: lastMonth.investment,
-      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005,
-      currentValue: lastMonth.portfolioValue // Add this line to match the Metrics type
+      managementFee: totalInvestment * 0.005,
+      currentValue: lastMonth.portfolioValue
     };
   };
 
