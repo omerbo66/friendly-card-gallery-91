@@ -6,7 +6,6 @@ export const saveClientToSupabase = async (client: Omit<Client, "id">) => {
   console.log("Saving client to Supabase:", client);
   
   try {
-    // Insert client
     const { data: clientData, error: clientError } = await supabase
       .from('clients')
       .insert({
@@ -23,7 +22,6 @@ export const saveClientToSupabase = async (client: Omit<Client, "id">) => {
     if (clientError) throw clientError;
     console.log("Client saved successfully:", clientData);
 
-    // Insert monthly data
     const monthlyDataToInsert = client.monthlyData.map(data => ({
       client_id: clientData.id,
       month: data.month,
@@ -56,7 +54,6 @@ export const fetchClientsFromSupabase = async (): Promise<Client[]> => {
   console.log("Fetching clients from Supabase");
   
   try {
-    // Fetch clients
     const { data: clients, error: clientsError } = await supabase
       .from('clients')
       .select('*');
@@ -64,7 +61,6 @@ export const fetchClientsFromSupabase = async (): Promise<Client[]> => {
     if (clientsError) throw clientsError;
     console.log("Clients fetched successfully:", clients);
 
-    // Fetch monthly data for all clients
     const { data: monthlyData, error: monthlyError } = await supabase
       .from('monthly_data')
       .select('*');
@@ -72,7 +68,6 @@ export const fetchClientsFromSupabase = async (): Promise<Client[]> => {
     if (monthlyError) throw monthlyError;
     console.log("Monthly data fetched successfully");
 
-    // Map the data to match our Client type
     return clients.map(client => ({
       id: parseInt(client.id), // Convert UUID to number for type compatibility
       name: client.name,
@@ -106,7 +101,6 @@ export const migrateLocalStorageToSupabase = async () => {
   console.log("Starting localStorage to Supabase migration");
   
   try {
-    // Get data from localStorage
     const localData = localStorage.getItem('investment-clients');
     if (!localData) {
       console.log("No local data found to migrate");
@@ -116,7 +110,6 @@ export const migrateLocalStorageToSupabase = async () => {
     const clients: Client[] = JSON.parse(localData);
     console.log("Found local clients to migrate:", clients.length);
 
-    // Save each client to Supabase
     for (const client of clients) {
       const clientToSave = {
         name: client.name,
@@ -137,7 +130,6 @@ export const migrateLocalStorageToSupabase = async () => {
       description: "Data migrated to Supabase successfully"
     });
 
-    // Clear localStorage after successful migration
     localStorage.removeItem('investment-clients');
   } catch (error) {
     console.error("Migration failed:", error);

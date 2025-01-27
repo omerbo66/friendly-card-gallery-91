@@ -61,10 +61,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const loadClients = async () => {
       try {
-        // First, try to migrate any existing localStorage data
         await migrateLocalStorageToSupabase();
-        
-        // Then fetch all clients from Supabase
         const supabaseClients = await fetchClientsFromSupabase();
         setClients(supabaseClients);
       } catch (error) {
