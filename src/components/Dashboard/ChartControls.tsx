@@ -3,15 +3,17 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 
+interface VisibleSeries {
+  portfolioValue: boolean;
+  investment: boolean;
+  profit: boolean;
+}
+
 interface ChartControlsProps {
   investmentPercentage: number;
-  visibleSeries: {
-    portfolioValue: boolean;
-    investment: boolean;
-    profit: boolean;
-  };
+  visibleSeries: VisibleSeries;
   onInvestmentPercentageChange: (value: number[]) => void;
-  onVisibleSeriesChange: (key: 'portfolioValue' | 'investment' | 'profit', checked: boolean) => void;
+  onVisibleSeriesChange: (key: keyof VisibleSeries, checked: boolean) => void;
 }
 
 export const ChartControls = ({

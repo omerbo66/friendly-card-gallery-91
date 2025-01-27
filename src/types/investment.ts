@@ -28,13 +28,8 @@ export interface Metrics {
   currentValue: number;
 }
 
-export interface ClientMetrics {
-  totalInvestment: number;
-  portfolioValue: number;
-  totalProfit: number;
-  latestMonthlyInvestment: number;
-  managementFee: number;
-  currentValue: number;
+export interface ClientMetrics extends Metrics {
+  // Now includes all properties from Metrics, including currentValue
 }
 
 export interface AggregateMetrics {
