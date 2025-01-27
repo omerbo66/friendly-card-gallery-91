@@ -7,6 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from "@/components/ui/use-toast";
 import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
+import { generateMonthlyData } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -15,18 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
-import { INVESTMENT_TRACKS, PROFESSIONS } from '@/lib/constants';
 
 const COLORS = ['#8B5CF6', '#0EA5E9', '#F97316', '#D946EF', '#10B981'];
 const RISK_PROFILES = ['Conservative', 'Moderate', 'Aggressive'];
@@ -55,7 +44,6 @@ export const Dashboard = () => {
   });
   const [investmentPercentage, setInvestmentPercentage] = useState(10);
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadClients = async () => {
@@ -93,7 +81,8 @@ export const Dashboard = () => {
       portfolioValue: lastMonth.portfolioValue,
       totalProfit: lastMonth.profit,
       latestMonthlyInvestment: lastMonth.investment,
-      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005
+      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005,
+      currentValue: lastMonth.portfolioValue // Added missing currentValue property
     };
   };
 
@@ -170,7 +159,7 @@ export const Dashboard = () => {
       monthlyData: generateMonthlyData(value[0])
     }));
     setClients(updatedClients);
-    saveClients(updatedClients);
+    // Removed saveClients call since we're using Supabase
   };
 
   return (
