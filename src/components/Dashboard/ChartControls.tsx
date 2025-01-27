@@ -11,7 +11,7 @@ interface ChartControlsProps {
     profit: boolean;
   };
   onInvestmentPercentageChange: (value: number[]) => void;
-  onVisibleSeriesChange: (key: keyof typeof visibleSeries, checked: boolean) => void;
+  onVisibleSeriesChange: (key: 'portfolioValue' | 'investment' | 'profit', checked: boolean) => void;
 }
 
 export const ChartControls = ({

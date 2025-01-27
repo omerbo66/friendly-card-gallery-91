@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ArrowUpRight } from 'lucide-react';
 import { Client, MonthlyData, ClientMetrics } from '@/types/investment';
 import { useToast } from "@/hooks/use-toast";
-import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
+import { fetchClientsFromSupabase } from '@/lib/supabase';
 import { generateMonthlyData } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import { ClientCard } from './ClientCard';
 export const Dashboard = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [comparisonClient, setComparisonClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAllClients, setShowAllClients] = useState(false);
   const { toast } = useToast();
@@ -31,7 +30,6 @@ export const Dashboard = () => {
   useEffect(() => {
     const loadClients = async () => {
       try {
-        await migrateLocalStorageToSupabase();
         const supabaseClients = await fetchClientsFromSupabase();
         setClients(supabaseClients);
       } catch (error) {
@@ -54,7 +52,8 @@ export const Dashboard = () => {
         portfolioValue: 0,
         totalProfit: 0,
         latestMonthlyInvestment: 0,
-        managementFee: 0
+        managementFee: 0,
+        currentValue: 0
       };
     }
 
@@ -64,7 +63,8 @@ export const Dashboard = () => {
       portfolioValue: lastMonth.portfolioValue,
       totalProfit: lastMonth.profit,
       latestMonthlyInvestment: lastMonth.investment,
-      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005
+      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005,
+      currentValue: lastMonth.portfolioValue // Add this line to match the Metrics type
     };
   };
 

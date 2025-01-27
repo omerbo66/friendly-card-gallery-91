@@ -34,6 +34,7 @@ export interface ClientMetrics {
   totalProfit: number;
   latestMonthlyInvestment: number;
   managementFee: number;
+  currentValue: number;
 }
 
 export interface AggregateMetrics {
