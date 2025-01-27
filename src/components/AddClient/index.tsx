@@ -16,6 +16,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { InfoIcon } from 'lucide-react';
+import { saveClientToSupabase } from '@/lib/supabase';
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const AddClient = () => {
     investmentTrack: 'VTSAX' as InvestmentTrack
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -44,27 +45,34 @@ const AddClient = () => {
       return;
     }
 
-    const newClient: Client = {
-      id: Date.now(),
-      name: formData.name,
-      profession: formData.profession === 'Other' ? 'Other' : formData.profession,
-      customProfession: formData.profession === 'Other' ? formData.customProfession : undefined,
-      monthlyExpenses: Number(formData.monthlyExpenses),
-      investmentPercentage: formData.investmentPercentage.toString(),
-      investmentTrack: formData.investmentTrack,
-      monthlyData: generateMonthlyData(formData.investmentPercentage)
-    };
+    try {
+      const newClient = {
+        name: formData.name,
+        profession: formData.profession === 'Other' ? 'Other' : formData.profession,
+        customProfession: formData.profession === 'Other' ? formData.customProfession : undefined,
+        monthlyExpenses: Number(formData.monthlyExpenses),
+        investmentPercentage: formData.investmentPercentage.toString(),
+        investmentTrack: formData.investmentTrack,
+        monthlyData: generateMonthlyData(formData.investmentPercentage)
+      };
 
-    // Save to localStorage
-    addClient(newClient);
-    
-    toast({
-      title: "Success",
-      description: "Client added successfully"
-    });
+      await saveClientToSupabase(newClient);
+      
+      toast({
+        title: "Success",
+        description: "Client added successfully"
+      });
 
-    // Navigate to the dashboard
-    navigate('/');
+      // Navigate to the dashboard
+      navigate('/');
+    } catch (error) {
+      console.error("Error saving client:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save client data",
+        variant: "destructive"
+      });
+    }
   };
 
   const selectedTrack = INVESTMENT_TRACKS.find(track => track.id === formData.investmentTrack);

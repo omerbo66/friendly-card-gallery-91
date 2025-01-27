@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { getClients, saveClients, searchClients } from '@/lib/localStorage';
+import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
 import { INVESTMENT_TRACKS, PROFESSIONS } from '@/lib/constants';
 
 const COLORS = ['#8B5CF6', '#0EA5E9', '#F97316', '#D946EF', '#10B981'];
@@ -74,62 +74,26 @@ export const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedClients = getClients();
-    if (storedClients.length === 0) {
-      generateClients();
-    } else {
-      setClients(storedClients);
-    }
+    const loadClients = async () => {
+      try {
+        // First, try to migrate any existing localStorage data
+        await migrateLocalStorageToSupabase();
+        
+        // Then fetch all clients from Supabase
+        const supabaseClients = await fetchClientsFromSupabase();
+        setClients(supabaseClients);
+      } catch (error) {
+        console.error("Error loading clients:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load client data",
+          variant: "destructive"
+        });
+      }
+    };
+
+    loadClients();
   }, []);
-
-  const generateMonthlyData = (investmentPercentageOverride?: number): MonthlyData[] => {
-    const data: MonthlyData[] = [];
-    let portfolioValue = 0;
-    let cumulativeProfit = 0;
-    let totalInvestment = 0;
-    
-    for (let month = 0; month < NASDAQ_RETURNS.length; month++) {
-      const monthlyExpense = Math.floor(Math.random() * 16000) + 4000;
-      const investmentPercentage = investmentPercentageOverride || (Math.random() * 17 + 3);
-      const investment = monthlyExpense * (investmentPercentage / 100);
-      
-      totalInvestment += investment;
-      const monthlyReturn = NASDAQ_RETURNS[month];
-      portfolioValue = (portfolioValue + investment) * (1 + monthlyReturn);
-      cumulativeProfit = portfolioValue - totalInvestment;
-      
-      data.push({
-        month: month + 1,
-        expenses: monthlyExpense,
-        investment,
-        portfolioValue,
-        profit: cumulativeProfit
-      });
-    }
-    return data;
-  };
-
-  const generateClients = () => {
-    const newClients: Client[] = Array.from({ length: 100 }, (_, i) => {
-      const monthlyExpenses = Math.floor(Math.random() * 16000) + 4000;
-      const investmentPercentage = (Math.random() * 17 + 3).toFixed(1);
-      const tracks = INVESTMENT_TRACKS.map(track => track.id);
-      const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
-      
-      return {
-        id: i + 1,
-        name: generateRandomName(),
-        profession: PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)],
-        investmentTrack: randomTrack,
-        monthlyData: generateMonthlyData(),
-        monthlyExpenses,
-        investmentPercentage
-      };
-    });
-
-    setClients(newClients);
-    saveClients(newClients);
-  };
 
   const calculateMetrics = (client: Client): ClientMetrics => {
     const lastMonth = client.monthlyData[client.monthlyData.length - 1];
