@@ -5,9 +5,9 @@ import { Search, ArrowUpRight, ArrowDownRight, HelpCircle } from 'lucide-react';
 import { Client, MonthlyData, ClientMetrics, AggregateMetrics } from '@/types/investment';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
-
+import { generateMonthlyData } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -27,7 +27,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
 import { INVESTMENT_TRACKS, PROFESSIONS } from '@/lib/constants';
 
 const COLORS = ['#8B5CF6', '#0EA5E9', '#F97316', '#D946EF', '#10B981'];
@@ -79,7 +78,7 @@ export const Dashboard = () => {
     };
 
     loadClients();
-  }, []);
+  }, [toast]);
 
   const searchClients = (term: string) => {
     return clients.filter(client => 
@@ -172,7 +171,6 @@ export const Dashboard = () => {
       monthlyData: generateMonthlyData(value[0])
     }));
     setClients(updatedClients);
-    saveClients(updatedClients);
   };
 
   return (

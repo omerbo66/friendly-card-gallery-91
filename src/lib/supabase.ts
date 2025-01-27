@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Client, MonthlyData } from "@/types/investment";
-import { toast } from "@/components/ui/use-toast";
+import { Client, MonthlyData, InvestmentTrack } from "@/types/investment";
+import { toast } from "@/hooks/use-toast";
 
 export const saveClientToSupabase = async (client: Omit<Client, "id">) => {
   console.log("Saving client to Supabase:", client);
@@ -74,13 +74,13 @@ export const fetchClientsFromSupabase = async (): Promise<Client[]> => {
 
     // Map the data to match our Client type
     return clients.map(client => ({
-      id: Number(client.id), // Convert UUID to number for type compatibility
+      id: parseInt(client.id), // Convert UUID to number for type compatibility
       name: client.name,
       profession: client.profession,
       customProfession: client.custom_profession,
       monthlyExpenses: client.monthly_expenses,
       investmentPercentage: client.investment_percentage,
-      investmentTrack: client.investment_track,
+      investmentTrack: client.investment_track as InvestmentTrack,
       monthlyData: monthlyData
         .filter(data => data.client_id === client.id)
         .map(data => ({
