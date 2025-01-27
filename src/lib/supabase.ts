@@ -74,7 +74,7 @@ export const fetchClientsFromSupabase = async (): Promise<Client[]> => {
 
     // Map the data to match our Client type
     return clients.map(client => ({
-      id: client.id,
+      id: Number(client.id), // Convert UUID to number for type compatibility
       name: client.name,
       profession: client.profession,
       customProfession: client.custom_profession,

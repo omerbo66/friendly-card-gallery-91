@@ -9,14 +9,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { PROFESSIONS, INVESTMENT_TRACKS } from '@/lib/constants';
 import { Client, InvestmentTrack } from '@/types/investment';
 import { generateMonthlyData } from '@/lib/utils';
-import { addClient } from '@/lib/localStorage';
+import { saveClientToSupabase } from '@/lib/supabase';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { InfoIcon } from 'lucide-react';
-import { saveClientToSupabase } from '@/lib/supabase';
 
 const AddClient = () => {
   const navigate = useNavigate();

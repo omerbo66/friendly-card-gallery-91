@@ -5,6 +5,9 @@ import { Search, ArrowUpRight, ArrowDownRight, HelpCircle } from 'lucide-react';
 import { Client, MonthlyData, ClientMetrics, AggregateMetrics } from '@/types/investment';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useToast } from "@/components/ui/use-toast";
+import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
+
 import {
   Table,
   TableBody,
@@ -40,30 +43,13 @@ const NASDAQ_RETURNS = [
   0.0199
 ].reverse();
 
-const generateRandomName = () => {
-  const FIRST_NAMES = [
-    'Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan', 'Sophia', 'Mason',
-    'Isabella', 'William', 'Mia', 'James', 'Charlotte', 'Benjamin', 'Amelia',
-    'Lucas', 'Harper', 'Henry', 'Evelyn', 'Alexander'
-  ];
-
-  const LAST_NAMES = [
-    'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller',
-    'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez',
-    'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'
-  ];
-
-  const firstName = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
-  const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
-  return `${firstName} ${lastName}`;
-};
-
 export const Dashboard = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [comparisonClient, setComparisonClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAllClients, setShowAllClients] = useState(false);
+  const { toast } = useToast();
   const [visibleSeries, setVisibleSeries] = useState({
     portfolioValue: true,
     investment: true,
@@ -94,6 +80,13 @@ export const Dashboard = () => {
 
     loadClients();
   }, []);
+
+  const searchClients = (term: string) => {
+    return clients.filter(client => 
+      client.name.toLowerCase().includes(term.toLowerCase()) ||
+      client.profession.toLowerCase().includes(term.toLowerCase())
+    );
+  };
 
   const calculateMetrics = (client: Client): ClientMetrics => {
     const lastMonth = client.monthlyData[client.monthlyData.length - 1];
@@ -770,5 +763,3 @@ export const Dashboard = () => {
     </div>
   );
 };
-
-export default Dashboard;
