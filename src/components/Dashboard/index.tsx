@@ -7,7 +7,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from "@/components/ui/use-toast";
 import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
-import { generateMonthlyData } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -88,18 +87,32 @@ export const Dashboard = () => {
   };
 
   const calculateMetrics = (client: Client): ClientMetrics => {
+    if (!client.monthlyData || client.monthlyData.length === 0) {
+      return {
+        totalInvestment: 0,
+        portfolioValue: 0,
+        totalProfit: 0,
+        latestMonthlyInvestment: 0,
+        managementFee: 0,
+        currentValue: 0
+      };
+    }
+
     const lastMonth = client.monthlyData[client.monthlyData.length - 1];
+    const totalInvestment = client.monthlyData.reduce((sum, data) => sum + data.investment, 0);
+    
     return {
-      totalInvestment: client.monthlyData.reduce((sum, data) => sum + data.investment, 0),
+      totalInvestment,
       portfolioValue: lastMonth.portfolioValue,
       totalProfit: lastMonth.profit,
       latestMonthlyInvestment: lastMonth.investment,
-      managementFee: client.monthlyData.reduce((sum, data) => sum + data.investment, 0) * 0.005,
-      currentValue: lastMonth.portfolioValue // Added missing currentValue property
+      managementFee: totalInvestment * 0.005,
+      currentValue: lastMonth.portfolioValue
     };
   };
 
   const aggregateMetrics: AggregateMetrics = clients.reduce((acc, client) => {
+    if (!client) return acc;
     const metrics = calculateMetrics(client);
     return {
       totalValue: acc.totalValue + metrics.portfolioValue,
