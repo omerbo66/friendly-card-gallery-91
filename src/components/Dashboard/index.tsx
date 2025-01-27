@@ -7,6 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from "@/components/ui/use-toast";
 import { fetchClientsFromSupabase, migrateLocalStorageToSupabase } from '@/lib/supabase';
+import { generateMonthlyData } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -15,15 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { INVESTMENT_TRACKS, PROFESSIONS } from '@/lib/constants';
