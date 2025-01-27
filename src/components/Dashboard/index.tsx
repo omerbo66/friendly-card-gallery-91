@@ -85,6 +85,16 @@ export const Dashboard = () => {
   };
 
   const calculateMetrics = (client: Client): ClientMetrics => {
+    if (!client.monthlyData || client.monthlyData.length === 0) {
+      return {
+        totalInvestment: 0,
+        portfolioValue: 0,
+        totalProfit: 0,
+        latestMonthlyInvestment: 0,
+        managementFee: 0
+      };
+    }
+
     const lastMonth = client.monthlyData[client.monthlyData.length - 1];
     return {
       totalInvestment: client.monthlyData.reduce((sum, data) => sum + data.investment, 0),
