@@ -43,6 +43,15 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
           y: Number(d.profit.toFixed(2))
         })),
         visible: visibleSeries.profit
+      },
+      {
+        id: "Return on Investment",
+        color: "#2563EB",
+        data: monthlyData.map(d => ({
+          x: `Month ${d.month}`,
+          y: Number(((d.profit / (d.portfolioValue - d.profit)) * 100).toFixed(2))
+        })),
+        visible: true
       }
     ];
 
@@ -79,7 +88,7 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: 'Amount (ILS)',
+          legend: 'Amount (ILS) / ROI (%)',
           legendOffset: -60,
           legendPosition: 'middle',
           format: (value) => {
