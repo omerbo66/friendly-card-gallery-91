@@ -16,6 +16,9 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
   const isMobile = useIsMobile();
 
   const formatChartData = (monthlyData: MonthlyData[]) => {
+    let cumulativeInvestment = 0;
+    let cumulativeProfit = 0;
+
     const series = [
       {
         id: "Portfolio Value",
@@ -27,21 +30,27 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
         visible: visibleSeries.portfolioValue
       },
       {
-        id: "Monthly Investment",
+        id: "Cumulative Investment",
         color: "#0EA5E9",
-        data: monthlyData.map(d => ({
-          x: `Month ${d.month}`,
-          y: Number(d.investment.toFixed(2))
-        })),
+        data: monthlyData.map(d => {
+          cumulativeInvestment += d.investment;
+          return {
+            x: `Month ${d.month}`,
+            y: Number(cumulativeInvestment.toFixed(2))
+          };
+        }),
         visible: visibleSeries.investment
       },
       {
         id: "Cumulative Profit",
         color: "#F97316",
-        data: monthlyData.map(d => ({
-          x: `Month ${d.month}`,
-          y: Number(d.profit.toFixed(2))
-        })),
+        data: monthlyData.map(d => {
+          cumulativeProfit += (d.portfolioValue - (cumulativeInvestment + cumulativeProfit));
+          return {
+            x: `Month ${d.month}`,
+            y: Number(cumulativeProfit.toFixed(2))
+          };
+        }),
         visible: visibleSeries.profit
       },
       {
@@ -51,6 +60,20 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
           x: `Month ${d.month}`,
           y: Number(((d.profit / (d.portfolioValue - d.profit)) * 100).toFixed(2))
         })),
+        visible: true
+      },
+      {
+        id: "Total Portfolio Growth",
+        color: "#10B981",
+        data: monthlyData.map(d => {
+          const totalValue = d.portfolioValue;
+          const totalInvestment = cumulativeInvestment;
+          const growthPercentage = ((totalValue - totalInvestment) / totalInvestment) * 100;
+          return {
+            x: `Month ${d.month}`,
+            y: Number(growthPercentage.toFixed(2))
+          };
+        }),
         visible: true
       }
     ];
@@ -105,11 +128,7 @@ export const PerformanceChart = ({ data, visibleSeries }: PerformanceChartProps)
         }}
         enableGridX={false}
         enableGridY={true}
-        pointSize={8}
-        pointColor={{ theme: 'background' }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: 'serieColor' }}
-        pointLabelYOffset={-12}
+        pointSize={0}
         enableArea={true}
         areaOpacity={0.15}
         useMesh={true}
